@@ -1,5 +1,5 @@
 # Wer-ist-Wo-Liste-Erweiterung
-Erweitert die Wer-ist-Wo/Online-Liste um die Information von eigenen Seiten.
+Eigene Seiten, wie zum Beispiel Listen oder auch teilweise Seiten von Plugins erscheinen mit "Unbekannter Ort" in der Wer ist wo/online Liste. Mit diesem Plugin kann man diese Seite manuell einpflegen. Ohne in die PHP zu müssen. Die Seiten werden dafür einzeln im ACP hinzugefügt und können individuelle Texte bekommen. 
 
 # Benutzergruppen-Berechtigungen setzen
 Damit alle Admin-Accounts Zugriff auf die Verwaltung der Online Locations haben im ACP, müssen unter dem Reiter Benutzer & Gruppen » Administrator-Berechtigungen » Benutzergruppen-Berechtigungen die Berechtigungen einmal angepasst werden. Die Berechtigungen für die Online Locations befinden sich im Tab 'Tools & Verwaltung'.
