@@ -44,7 +44,7 @@ index.php?module=tools-online_location
 # Demo
 # ACP
 <img src="https://stormborn.at/plugins/onlinelocation_acp.png">
-<img src="https://stormborn.at/plugins/onlinelocation_acp_add.png">
+<img src=https://stormborn.at/plugins/onlinelocation_acp_add.png">
 
 # Wer ist online - Liste
 <img src="https://stormborn.at/plugins/onlinelocation_online.png">
