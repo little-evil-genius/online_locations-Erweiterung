@@ -18,7 +18,7 @@ function online_location_info(){
 	return array(
 		"name"		=> "Online Locations Erweiterung",
 		"description"	=> "Erweitert die Wer-ist-Wo/Online-Liste um die Information von eigenen Seiten.",
-		"website"	=> "https://github.com/little-evil-genius/Wer-ist-Wo-Liste-Erweiterung",
+		"website"	=> "https://github.com/little-evil-genius/online_locations-Erweiterung",
 		"author"	=> "little.evil.genius",
 		"authorsite"	=> "https://storming-gates.de/member.php?action=profile&uid=1712",
 		"version"	=> "1.0",
@@ -226,9 +226,6 @@ function online_location_admin_manage() {
                 if (empty($mybb->get_input('location_name'))) {
                     $errors[] = $lang->online_location_manage_add_error_location_name;
                 }
-                if (!empty($mybb->get_input('parameter')) AND empty($mybb->get_input('value'))) {
-                    $errors[] = $lang->online_location_manage_add_error_parameter_value;
-                }
                 if (empty($mybb->get_input('parameter')) AND !empty($mybb->get_input('value'))) {
                     $errors[] = $lang->online_location_manage_add_error_value_parameter;
                 }
@@ -378,9 +375,6 @@ function online_location_admin_manage() {
                 }
                 if (empty($mybb->get_input('location_name'))) {
                     $errors[] = $lang->online_location_manage_add_error_location_name;
-                }
-                if (!empty($mybb->get_input('parameter')) AND empty($mybb->get_input('value'))) {
-                    $errors[] = $lang->online_location_manage_add_error_parameter_value;
                 }
                 if (empty($mybb->get_input('parameter')) AND !empty($mybb->get_input('value'))) {
                     $errors[] = $lang->online_location_manage_add_error_value_parameter;
@@ -586,11 +580,19 @@ function online_location_wol_activity($user_activity) {
         $parameter = $db->fetch_field($db->simple_select("online_locations", "parameter", "olid = '".$olid."'"), "parameter");
         $value = $db->fetch_field($db->simple_select("online_locations", "value", "olid = '".$olid."'"), "value");
 
-        if (!empty($value)) {
+        if (!empty($value) AND !empty($parameter)) {
             switch ($filename) {
                 case $phpfile:
                     if ($parameters[$parameter] == $value) {
                         $user_activity['activity'] = $value;
+                    }
+                break;
+            }
+        } else if (empty($value) AND !empty($parameter)) {
+            switch ($filename) {
+                case $phpfile:
+                    if ($parameters[$parameter]) {
+                        $user_activity['activity'] = $phpfile;
                     }
                 break;
             }
@@ -629,11 +631,16 @@ function online_location_wol_location($plugin_array) {
     foreach ($allolids_array as $olid) {
 
         $phpfile = $db->fetch_field($db->simple_select("online_locations", "phpfile", "olid = '".$olid."'"), "phpfile");
+        $parameter = $db->fetch_field($db->simple_select("online_locations", "parameter", "olid = '".$olid."'"), "parameter");
         $value = $db->fetch_field($db->simple_select("online_locations", "value", "olid = '".$olid."'"), "value");
         $location_text = $db->fetch_field($db->simple_select("online_locations", "location_name", "olid = '".$olid."'"), "location_name");
 
-        if (!empty($value)) {
+        if (!empty($value) AND !empty($parameter)) {
             if ($plugin_array['user_activity']['activity'] == $value) {
+                $plugin_array['location_name'] = $location_text;
+            }
+        } else if (empty($value) AND !empty($parameter)) {
+            if ($plugin_array['user_activity']['activity'] == $phpfile) {
                 $plugin_array['location_name'] = $location_text;
             }
         } else {
