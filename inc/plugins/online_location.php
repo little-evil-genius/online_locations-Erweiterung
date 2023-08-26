@@ -16,7 +16,7 @@ $plugins->add_hook("build_friendly_wol_location_end", "online_location_wol_locat
 // Die Informationen, die im Pluginmanager angezeigt werden
 function online_location_info(){
 	return array(
-		"name"		=> "Wer-ist-Wo/Online-Liste Erweiterung",
+		"name"		=> "Online Locations Erweiterung",
 		"description"	=> "Erweitert die Wer-ist-Wo/Online-Liste um die Information von eigenen Seiten.",
 		"website"	=> "https://github.com/little-evil-genius/Wer-ist-Wo-Liste-Erweiterung",
 		"author"	=> "little.evil.genius",
