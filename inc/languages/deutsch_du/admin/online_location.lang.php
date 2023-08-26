@@ -37,7 +37,6 @@ $l['online_location_manage_add_button'] = "Online Location speichern";
 $l['online_location_manage_add_error_identification'] = "Du hast keinen Namen angegeben.";
 $l['online_location_manage_add_error_phpfile'] = "Du hast keine PHP Datei angegeben.";
 $l['online_location_manage_add_error_location_name'] = "Du hast nichts eingetragen für die Anzeige in der Wer-ist-Wo/Online-Liste.";
-$l['online_location_manage_add_error_parameter_value'] = "Du hast einen Parameter angegeben, aber keinen passenden Wert (Seitenbezeichnung).";
 $l['online_location_manage_add_error_value_parameter'] = "Du hast eine Seitenbezeichnung angegeben, aber keinen Parameter.";
 $l['online_location_manage_add_logadmin'] = "Eine neue Online Location wurde hinzugefügt ";
 $l['online_location_manage_add_flash'] = "Die Informationen für die Online Location wurde erfolgreich erstellt.";
