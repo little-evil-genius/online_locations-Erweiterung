@@ -1,12 +1,12 @@
 # online locations Erweiterung
-Eigene Seiten, wie zum Beispiel Listen oder auch teilweise Seiten von Plugins erscheinen mit "Unbekannter Ort" in der Wer ist wo/online Liste. Mit diesem Plugin kann man diese Seite manuell einpflegen. Ohne in die PHP zu müssen. Die Seiten werden dafür einzeln im ACP hinzugefügt und können individuelle Texte bekommen. 
+Eigene Seiten, wie zum Beispiel Listen oder auch teilweise Seiten von Plugins, erscheinen mit "Unbekannter Ort" in der Wer ist wo/online Liste. Mit diesem Plugin kann man diese Seiten manuell einpflegen - ohne in die PHP zu müssen. Die Seiten werden dafür einzeln im ACP hinzugefügt und können mit individuelle Texte bestückt werden. 
 
 # Benutzergruppen-Berechtigungen setzen
-Damit alle Admin-Accounts Zugriff auf die Verwaltung der Online Locations haben im ACP, müssen unter dem Reiter Benutzer & Gruppen » Administrator-Berechtigungen » Benutzergruppen-Berechtigungen die Berechtigungen einmal angepasst werden. Die Berechtigungen für die Online Locations befinden sich im Tab 'Tools & Verwaltung'.
+Damit alle Admin-Accounts Zugriff auf die Verwaltung der Online Locations im ACP haben, müssen unter dem Reiter "Benutzer & Gruppen » Administrator-Berechtigungen » Benutzergruppen-Berechtigungen" die Berechtigungen einmal angepasst werden. Die Berechtigungen für die Online Locations befinden sich im Tab 'Tools & Verwaltung'.
 
 # Online Location hinzufügen
 Ich erkläre das Prinzip der Felder anhand von Listen.<br>
-Wir haben die PHP Datei lists dank action unterteilt in die Bereiche: charaview, faceclaims, names. Und in der Online Liste sollen die Hauptseite (lists) und die Unterseiten dargestellt werden. Wir müssen nun für alle vier Seiten eine Online Location im ACP hinzufügen.<br><br>
+Wir haben die PHP Datei "lists" dank action unterteilt in die Bereiche: charaview, faceclaims, names. Und in der Online Liste sollen die Hauptseite (lists) und die Unterseiten dargestellt werden. Wir müssen nun für alle vier Seiten eine Online Location im ACP hinzufügen.<br><br>
 Für die Hauptseite: lists<br>
 <b>Name:</b> Listen<br>
 <b>PHP Datei:</b> lists<br>
@@ -35,7 +35,7 @@ Für die vergebenen Namen: lists.php?action=names<br>
 <b>Seitenbezeichnung:</b> names<br>
 <b>Anzeige in der Wer-ist-Wo/Online-Liste:</b> Sieht sich die vergebenen Namen an.<br>
 
-Selbst Seiten, wo die Seitenbezeichnung unterschiedlich ist, können eingetragen werden. Ein Beispiel dafür ist die Spielerübersicht mit Statistiken von sparks fly. Der Link für die Seite ist players.php?id=X. Die PHP-Datei wäre players. Der Parameter id und die Seitenbezeichnung wird freigelassen. Dann erscheint, egal welche ID schlussendlich aufgerufen wird, in der Online-Liste das was im Feld "Anzeige in der Wer-ist-Wo/Online-Liste" eingetragen wurde.
+Selbst Seiten, wo die Seitenbezeichnung unterschiedlich ist, können eingetragen werden. Ein Beispiel dafür ist die Spielerübersicht mit Statistiken von sparks fly. Der Link für die Seite ist players.php?id=X. Die PHP-Datei wäre players. Der Parameter id und die Seitenbezeichnung wird freigelassen. Dann erscheint, egal welche ID schlussendlich aufgerufen wird, in der Online-Liste das was im Feld "Anzeige in der Wer-ist-Wo/Online-Liste" eingetragen wurde. Im Feld für den Text ist HTML möglich, so können die einzelnen Seiten auch verlinkt werden.
 
 # Links
 <b>ACP</b><br>
