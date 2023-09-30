@@ -42,7 +42,7 @@ function online_location_install(){
         PRIMARY KEY(`olid`),
         KEY `olid` (`olid`)
         )
-        ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1    "
+        ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1"
     );
 }
  
@@ -551,7 +551,7 @@ function online_location_admin_manage() {
 // ONLINE ANZEIGE - WER IST WO
 function online_location_wol_activity($user_activity) {
 
-	global $parameters, $user, $db, $phpfile, $parameter, $value;
+	global $user, $db, $parameter, $value;
 
 	$split_loc = explode(".php", $user_activity['location']);
 	if(isset($user['location']) && $split_loc[0] == $user['location']) {
@@ -560,52 +560,48 @@ function online_location_wol_activity($user_activity) {
 		$filename = my_substr($split_loc[0], -my_strpos(strrev($split_loc[0]), "/"));
 	}
 
-    $alllocations_query = $db->query("SELECT olid FROM ".TABLE_PREFIX."online_locations");
-    $all_olids = "";
-    while($char = $db->fetch_array($alllocations_query)) {
-        
-        $olid = "";
-        $olid = $char['olid'];
-        
-        $all_olids .= $olid.",";
-    }
-    // letztes Komma vom String entfernen
-    $allolids_string = substr($all_olids, 0, -1);
-    // OLIDs splitten
-    $allolids_array = explode(",", $allolids_string);
+    $olid = "";
+    // Unterseite
+    if (!empty($split_loc[1])) {
+        // Name der Unterseite
+        $split_value = explode("=", $split_loc[1]);
+        // Parameter
+        $value = $split_value[1];
 
-    foreach ($allolids_array as $olid) {
+        // Name des Actions
+        $split_parameter = explode("?", $split_value[0]);
+        // Actiom
+        $parameter = $split_parameter[1];
 
-        $phpfile = $db->fetch_field($db->simple_select("online_locations", "phpfile", "olid = '".$olid."'"), "phpfile");
-        $parameter = $db->fetch_field($db->simple_select("online_locations", "parameter", "olid = '".$olid."'"), "parameter");
-        $value = $db->fetch_field($db->simple_select("online_locations", "value", "olid = '".$olid."'"), "value");
 
-        if (!empty($value) AND !empty($parameter)) {
-            switch ($filename) {
-                case $phpfile:
-                    if ($parameters[$parameter] == $value) {
-                        $user_activity['activity'] = $value;
-                    }
-                break;
-            }
-        } else if (empty($value) AND !empty($parameter)) {
-            switch ($filename) {
-                case $phpfile:
-                    if ($parameters[$parameter]) {
-                        $user_activity['activity'] = $phpfile;
-                    }
-                break;
-            }
-        } else {
-            switch ($filename) {
-                case $phpfile:
-                    if(!isset($parameters[$parameter])){
-                        $user_activity['activity'] = $phpfile;
-                    }
-                break;
-            }
+        // Zählen, ob der Name der Unterseite vorhanden ist
+        $count_para = $db->num_rows($db->query("SELECT olid FROM ".TABLE_PREFIX."online_locations
+        WHERE value = '".$value."'
+        "));
+
+        // Vorhanden - fester Parameter
+        if ($count_para != 0) {
+            $olid = $db->fetch_field($db->simple_select("online_locations", "olid", "value = '".$value."'"), "olid");
+        } 
+        // flexibler Parameter - UID zB
+        else {
+            $olid = $db->fetch_field($db->simple_select("online_locations", "olid", "parameter = '".$parameter."' AND value = ''"), "olid");
         }
-            
+        
+    } 
+    // HAUPTSEITE
+    else {
+        $php_file = $filename;
+        
+        $olid = $db->fetch_field($db->simple_select("online_locations", "olid", "phpfile = '".$php_file."' AND parameter = ''  AND value = ''"), "olid");
+    }
+
+    $phpfile = $db->fetch_field($db->simple_select("online_locations", "phpfile", "olid = '".$olid."'"), "phpfile");
+
+    switch ($filename) {
+        case $phpfile:
+            $user_activity['activity'] = "onlinelocation_".$olid;
+        break;
     }
 
 	return $user_activity;
@@ -614,40 +610,13 @@ function online_location_wol_location($plugin_array) {
 
 	global $db;
 
-    $alllocations_query = $db->query("SELECT olid FROM ".TABLE_PREFIX."online_locations");
-    $all_olids = "";
-    while($char = $db->fetch_array($alllocations_query)) {
-        
-        $olid = "";
-        $olid = $char['olid'];
-        
-        $all_olids .= $olid.",";
-    }
-    // letztes Komma vom String entfernen
-    $allolids_string = substr($all_olids, 0, -1);
-    // OLIDs splitten
-    $allolids_array = explode(",", $allolids_string);
+    $split_loc = explode("_", $plugin_array['user_activity']['activity']);
+    $olid = $split_loc[1];
 
-    foreach ($allolids_array as $olid) {
+    $location_text = $db->fetch_field($db->simple_select("online_locations", "location_name", "olid = '".$olid."'"), "location_name");
 
-        $phpfile = $db->fetch_field($db->simple_select("online_locations", "phpfile", "olid = '".$olid."'"), "phpfile");
-        $parameter = $db->fetch_field($db->simple_select("online_locations", "parameter", "olid = '".$olid."'"), "parameter");
-        $value = $db->fetch_field($db->simple_select("online_locations", "value", "olid = '".$olid."'"), "value");
-        $location_text = $db->fetch_field($db->simple_select("online_locations", "location_name", "olid = '".$olid."'"), "location_name");
-
-        if (!empty($value) AND !empty($parameter)) {
-            if ($plugin_array['user_activity']['activity'] == $value) {
-                $plugin_array['location_name'] = $location_text;
-            }
-        } else if (empty($value) AND !empty($parameter)) {
-            if ($plugin_array['user_activity']['activity'] == $phpfile) {
-                $plugin_array['location_name'] = $location_text;
-            }
-        } else {
-            if ($plugin_array['user_activity']['activity'] == $phpfile) {
-                $plugin_array['location_name'] = $location_text;
-            }
-        }
+    if($plugin_array['user_activity']['activity'] == "onlinelocation_".$olid) {
+        $plugin_array['location_name'] = $location_text;
     }
 
 	return $plugin_array;
