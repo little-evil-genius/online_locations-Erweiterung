@@ -30,7 +30,7 @@ $l['online_location_manage_add_phpfile_desc'] = "Wie lautet der Name der PHP-Dat
 $l['online_location_manage_add_parameter'] = "Parameter";
 $l['online_location_manage_add_parameter_desc'] = "Wie lautet der Parameter nach dem ? im URL? Wenn keiner vorhanden ist, dann kann dieses Feld freigelassen werden.";
 $l['online_location_manage_add_value'] = "Seitenbezeichnung";
-$l['online_location_manage_add_value_desc'] = "Wie lautet der Wert vom Parameter? Die Bezeichnung nach dem Parameter und dem =. Wenn kein Parameter vorhanden ist, kann dieses Feld freigelassen werden.";
+$l['online_location_manage_add_value_desc'] = "Wie lautet der Wert vom Parameter? Die Bezeichnung nach dem Parameter und dem =. Wenn kein Parameter vorhanden ist oder es sich um einen flexibel handelt, kann dieses Feld freigelassen werden.";
 $l['online_location_manage_add_location_name'] = "Anzeigetext in der Wer-ist-Wo/Online-Liste <em>*</em>";
 $l['online_location_manage_add_location_name_desc'] = "Trage hier ein, was in der Wer-ist-Wo/Online-Liste angezeigt werden soll. HTML ist möglich.";
 $l['online_location_manage_add_button'] = "Online Location speichern";
