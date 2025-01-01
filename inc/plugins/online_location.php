@@ -21,7 +21,7 @@ function online_location_info(){
 		"website"	=> "https://github.com/little-evil-genius/online_locations-Erweiterung",
 		"author"	=> "little.evil.genius",
 		"authorsite"	=> "https://storming-gates.de/member.php?action=profile&uid=1712",
-		"version"	=> "1.0",
+		"version"	=> "1.1",
 		"compatibility" => "18*"
 	);
 }
@@ -608,16 +608,19 @@ function online_location_wol_activity($user_activity) {
 }
 function online_location_wol_location($plugin_array) {
 
-	global $db;
-
+    global $db;
+	
     $split_loc = explode("_", $plugin_array['user_activity']['activity']);
-    $olid = $split_loc[1];
+    
+    if (isset($split_loc[1])) {
+        $olid = $split_loc[1];
 
-    $location_text = $db->fetch_field($db->simple_select("online_locations", "location_name", "olid = '".$olid."'"), "location_name");
+        $location_text = $db->fetch_field($db->simple_select("online_locations", "location_name", "olid = '".$olid."'"), "location_name");
 
-    if($plugin_array['user_activity']['activity'] == "onlinelocation_".$olid) {
-        $plugin_array['location_name'] = $location_text;
+        if ($plugin_array['user_activity']['activity'] == "onlinelocation_".$olid) {
+            $plugin_array['location_name'] = $location_text;
+        }
     }
 
-	return $plugin_array;
-}
+    return $plugin_array;
+} 
