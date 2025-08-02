@@ -6,10 +6,11 @@ if(!defined("IN_MYBB"))
 }
 
 // HOOKS
-$plugins->add_hook("admin_tools_action_handler", "online_location_admin_tools_action_handler");
-$plugins->add_hook("admin_tools_permissions", "online_location_admin_tools_permissions");
-$plugins->add_hook("admin_tools_menu", "online_location_admin_tools_menu");
+$plugins->add_hook("admin_rpgstuff_action_handler", "online_location_admin_rpgstuff_action_handler");
+$plugins->add_hook("admin_rpgstuff_permissions", "online_location_admin_rpgstuff_permissions");
+$plugins->add_hook("admin_rpgstuff_menu", "online_location_admin_rpgstuff_menu");
 $plugins->add_hook("admin_load", "online_location_admin_manage");
+$plugins->add_hook('admin_rpgstuff_update_plugin', 'online_location_admin_update_plugin');
 $plugins->add_hook("fetch_wol_activity_end", "online_location_wol_activity");
 $plugins->add_hook("build_friendly_wol_location_end", "online_location_wol_location");
 
@@ -21,7 +22,7 @@ function online_location_info(){
 		"website"	=> "https://github.com/little-evil-genius/online_locations-Erweiterung",
 		"author"	=> "little.evil.genius",
 		"authorsite"	=> "https://storming-gates.de/member.php?action=profile&uid=1712",
-		"version"	=> "1.1",
+		"version"	=> "1.2",
 		"compatibility" => "18*"
 	);
 }
@@ -29,21 +30,19 @@ function online_location_info(){
 // Diese Funktion wird aufgerufen, wenn das Plugin installiert wird (optional).
 function online_location_install(){
     
-    global $db, $cache, $mybb;
+    global $lang;
+
+    // SPRACHDATEI
+    $lang->load("online_location");
+
+    // RPG Stuff Modul muss vorhanden sein
+    if (!file_exists(MYBB_ADMIN_DIR."/modules/rpgstuff/module_meta.php")) {
+		flash_message($lang->online_location_error_rpgstuff, 'error');
+		admin_redirect('index.php?module=config-plugins');
+	}
 
     // DATENBANK ERSTELLEN
-    $db->query("CREATE TABLE ".TABLE_PREFIX."online_locations(
-        `olid` int(10) unsigned NOT NULL AUTO_INCREMENT,
-		`identification` VARCHAR(500) COLLATE utf8_general_ci  NOT NULL,
-        `phpfile` VARCHAR(500) COLLATE utf8_general_ci NOT NULL,
-        `parameter` VARCHAR(500) COLLATE utf8_general_ci NOT NULL,
-        `value` VARCHAR(500) COLLATE utf8_general_ci NOT NULL,
-        `location_name` VARCHAR(500) COLLATE utf8_general_ci NOT NULL,
-        PRIMARY KEY(`olid`),
-        KEY `olid` (`olid`)
-        )
-        ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1"
-    );
+    online_location_database();
 }
  
 // Funktion zur Überprüfung des Installationsstatus; liefert true zurürck, wenn Plugin installiert, sonst false (optional).
@@ -69,18 +68,20 @@ function online_location_uninstall(){
     }
 }
 
-#####################################
-### THE BIG MAGIC - THE FUNCTIONS ###
-#####################################
+######################
+### HOOK FUNCTIONS ###
+######################
 
 // ADMIN BEREICH - KONFIGURATION //
+
 // action handler fürs acp konfigurieren
-function online_location_admin_tools_action_handler(&$actions) {
+function online_location_admin_rpgstuff_action_handler(&$actions) {
 	$actions['online_location'] = array('active' => 'online_location', 'file' => 'online_location');
 }
 
-// Berechtigungen im ACP - Adminrechte
-function online_location_admin_tools_permissions(&$admin_permissions) {
+// Benutzergruppen-Berechtigungen im ACP
+function online_location_admin_rpgstuff_permissions(&$admin_permissions) {
+
 	global $lang;
 	
     $lang->load('online_location');
@@ -91,15 +92,16 @@ function online_location_admin_tools_permissions(&$admin_permissions) {
 }
 
 // Menü einfügen
-function online_location_admin_tools_menu(&$sub_menu) {
-	global $mybb, $lang;
+function online_location_admin_rpgstuff_menu(&$sub_menu) {
+
+	global $lang;
 	
     $lang->load('online_location');
 
 	$sub_menu[] = [
 		"id" => "online_location",
 		"title" => $lang->online_location_manage,
-		"link" => "index.php?module=tools-online_location"
+		"link" => "index.php?module=rpgstuff-online_location"
 	];
 }
 
@@ -108,16 +110,16 @@ function online_location_admin_manage() {
 
 	global $mybb, $db, $lang, $page, $run_module, $action_file, $cache;
 
-	$lang->load('online_location');
-
     if ($page->active_action != 'online_location') {
 		return false;
 	}
 
-	// Add to page navigation
-	$page->add_breadcrumb_item($lang->online_location_manage, "index.php?module=tools-online_location");
+	if ($run_module == 'rpgstuff' && $action_file == 'online_location') {
 
-	if ($run_module == 'tools' && $action_file == 'online_location') {
+        $lang->load('online_location');
+
+        // Add to page navigation
+        $page->add_breadcrumb_item($lang->online_location_manage, "index.php?module=rpgstuff-online_location");
 
 		// ÜBERSICHT
 		if ($mybb->get_input('action') == "" || !$mybb->get_input('action')) {
@@ -128,13 +130,13 @@ function online_location_admin_manage() {
 			// Übersichtsseite Button
 			$sub_tabs['online_location'] = [
 				"title" => $lang->online_location_manage_overview,
-				"link" => "index.php?module=tools-online_location",
+				"link" => "index.php?module=rpgstuff-online_location",
 				"description" => $lang->online_location_manage_overview_desc
 			];
 			// Hinzufüge Button
 			$sub_tabs['online_location_add'] = [
 				"title" => $lang->online_location_manage_add,
-				"link" => "index.php?module=tools-online_location&amp;action=add",
+				"link" => "index.php?module=rpgstuff-online_location&amp;action=add",
 				"description" => $lang->online_location_manage_add_desc
 			];
 
@@ -146,7 +148,7 @@ function online_location_admin_manage() {
 			}
 
 			// Übersichtsseite
-			$form = new Form("index.php?module=tools-online_location", "post", "", 1);
+			$form = new Form("index.php?module=rpgstuff-online_location", "post", "", 1);
 			$form_container = new FormContainer($lang->online_location_manage_overview);
 			// Name/Identifikator
 			$form_container->output_row_header($lang->online_location_manage_overview_identification, array('style' => 'text-align: left; width: 25%;'));
@@ -166,7 +168,7 @@ function online_location_admin_manage() {
 
 			while ($elements = $db->fetch_array($query_elements)) {
 
-                $form_container->output_cell('<strong><a href="index.php?module=tools-online_location&amp;action=edit&amp;olid='.$elements['olid'].'">'.htmlspecialchars_uni($elements['identification']).'</a></strong>');
+                $form_container->output_cell('<strong><a href="index.php?module=rpgstuff-online_location&amp;action=edit&amp;olid='.$elements['olid'].'">'.htmlspecialchars_uni($elements['identification']).'</a></strong>');
                 $form_container->output_cell(htmlspecialchars_uni($elements['phpfile']));
 
                 // Kein Paramater => Hauptverzeichnis
@@ -187,11 +189,11 @@ function online_location_admin_manage() {
 				$popup = new PopupMenu("online_location_".$elements['olid'], $lang->online_location_manage_overview_options);	
                 $popup->add_item(
                     $lang->online_location_manage_overview_options_edit,
-                    "index.php?module=tools-online_location&amp;action=edit&amp;olid=".$elements['olid']
+                    "index.php?module=rpgstuff-online_location&amp;action=edit&amp;olid=".$elements['olid']
                 );
                 $popup->add_item(
                     $lang->online_location_manage_overview_options_delete,
-                    "index.php?module=tools-online_location&amp;action=delete&amp;olid=".$elements['olid']."&amp;my_post_key={$mybb->post_code}", 
+                    "index.php?module=rpgstuff-online_location&amp;action=delete&amp;olid=".$elements['olid']."&amp;my_post_key={$mybb->post_code}", 
 					"return AdminCP.deleteConfirmation(this, '".$lang->online_location_manage_overview_delete_notice."')"
                 );
                 $form_container->output_cell($popup->fetch(), array("class" => "align_center"));
@@ -249,7 +251,7 @@ function online_location_admin_manage() {
                     log_admin_action(htmlspecialchars_uni($mybb->input['identification']));
     
                     flash_message($lang->online_location_manage_add_flash, 'success');
-                    admin_redirect("index.php?module=tools-online_location");
+                    admin_redirect("index.php?module=rpgstuff-online_location");
                 }
             }
     
@@ -284,13 +286,13 @@ function online_location_admin_manage() {
             // Übersichtsseite Button
 			$sub_tabs['online_location'] = [
 				"title" => $lang->online_location_manage_overview,
-				"link" => "index.php?module=tools-online_location",
+				"link" => "index.php?module=rpgstuff-online_location",
 				"description" => $lang->online_location_manage_overview_desc
 			];
 			// Hinzufüge Button
 			$sub_tabs['online_location_add'] = [
 				"title" => $lang->online_location_manage_add,
-				"link" => "index.php?module=tools-online_location&amp;action=add",
+				"link" => "index.php?module=rpgstuff-online_location&amp;action=add",
 				"description" => $lang->online_location_manage_add_desc
 			];
     
@@ -302,7 +304,7 @@ function online_location_admin_manage() {
             } 
     
             // Build the form
-            $form = new Form("index.php?module=tools-online_location&amp;action=add", "post", "", 1);
+            $form = new Form("index.php?module=rpgstuff-online_location&amp;action=add", "post", "", 1);
             $form_container = new FormContainer($lang->online_location_manage_add);
 
             // Beispiel
@@ -400,7 +402,7 @@ function online_location_admin_manage() {
                     log_admin_action(htmlspecialchars_uni($mybb->input['name']));
     
                     flash_message($lang->online_location_manage_edit_flash, 'success');
-                    admin_redirect("index.php?module=tools-online_location");
+                    admin_redirect("index.php?module=rpgstuff-online_location");
                 }
             }
     
@@ -435,7 +437,7 @@ function online_location_admin_manage() {
             // Übersichtsseite Button
             $sub_tabs['online_location_edit'] = [
                 "title" => $lang->online_location_manage_edit,
-                "link" => "index.php?module=tools-online_location&amp;action=edit&olid=".$olid,
+                "link" => "index.php?module=rpgstuff-online_location&amp;action=edit&olid=".$olid,
                 "description" => $lang->online_location_manage_edit_desc
             ];
     
@@ -459,7 +461,7 @@ function online_location_admin_manage() {
             }
     
             // Build the form
-            $form = new Form("index.php?module=tools-online_location&amp;action=edit", "post", "", 1);
+            $form = new Form("index.php?module=rpgstuff-online_location&amp;action=edit", "post", "", 1);
             $form_container = new FormContainer($lang->sprintf($lang->online_location_manage_edit_container, $full_url));
             echo $form->generate_hidden_field('olid', $olid);
     
@@ -518,12 +520,12 @@ function online_location_admin_manage() {
 			// Error Handling
 			if (empty($olid)) {
 				flash_message($lang->online_location_manage_error_invalid, 'error');
-				admin_redirect("index.php?module=tools-online_location");
+				admin_redirect("index.php?module=rpgstuff-online_location");
 			}
 
 			// Cancel button pressed?
 			if (isset($mybb->input['no']) && $mybb->input['no']) {
-				admin_redirect("index.php?module=tools-online_location");
+				admin_redirect("index.php?module=rpgstuff-online_location");
 			}
 
 			if ($mybb->request_method == "post") {
@@ -536,16 +538,76 @@ function online_location_admin_manage() {
 				log_admin_action(htmlspecialchars_uni($del_type['identification']));
 
 				flash_message($lang->online_location_manage_overview_delete_flash, 'success');
-				admin_redirect("index.php?module=tools-online_location");
+				admin_redirect("index.php?module=rpgstuff-online_location");
 			} else {
 				$page->output_confirm_action(
-					"index.php?module=tools-online_location&amp;action=delete&amp;olid=".$olid,
+					"index.php?module=rpgstuff-online_location&amp;action=delete&amp;olid=".$olid,
 					$lang->online_location_manage_overview_delete_notice
 				);
 			}
 			exit;
 		}
     }
+}
+
+// Plugin Update
+function online_location_admin_update_plugin(&$table) {
+
+    global $db, $mybb, $lang, $cache;
+	
+    $lang->load('rpgstuff_plugin_updates');
+
+    // UPDATE
+    if ($mybb->input['action'] == 'add_update' AND $mybb->get_input('plugin') == "online_location") {
+
+        // Datenbanktabellen & Felder
+        online_location_database();
+
+        // Collation prüfen und korrigieren
+        $charset = 'utf8mb4';
+        $collation = 'utf8mb4_unicode_ci';
+
+        $collation_string = $db->build_create_table_collation();
+        if (preg_match('/CHARACTER SET ([^\s]+)\s+COLLATE ([^\s]+)/i', $collation_string, $matches)) {
+            $charset = $matches[1];
+            $collation = $matches[2];
+        }
+
+        $databaseTables = [
+            "online_locations"
+        ];
+
+        foreach ($databaseTables as $databaseTable) {
+            if ($db->table_exists($databaseTable)) {
+                $table = TABLE_PREFIX.$databaseTable;
+
+                $query = $db->query("SHOW TABLE STATUS LIKE '".$db->escape_string($table)."'");
+                $table_status = $db->fetch_array($query);
+                $actual_collation = strtolower($table_status['Collation'] ?? '');
+
+                if (!empty($collation) && $actual_collation !== strtolower($collation)) {
+                    $db->query("ALTER TABLE {$table} CONVERT TO CHARACTER SET {$charset} COLLATE {$collation}");
+                }
+            }
+        }
+
+        flash_message($lang->plugins_flash, "success");
+        admin_redirect("index.php?module=rpgstuff-plugin_updates");
+    }
+
+    // Zelle mit dem Namen des Themes
+    $table->construct_cell("<b>".htmlspecialchars_uni("Online Locations Erweiterung")."</b>", array('width' => '70%'));
+
+    // Überprüfen, ob Update erledigt
+    $update_check = online_location_is_updated();
+
+    if (!empty($update_check)) {
+        $table->construct_cell($lang->plugins_actual, array('class' => 'align_center'));
+    } else {
+        $table->construct_cell("<a href=\"index.php?module=rpgstuff-plugin_updates&action=add_update&plugin=online_location\">".$lang->plugins_update."</a>", array('class' => 'align_center'));
+    }
+    
+    $table->construct_row();
 }
 
 // ONLINE ANZEIGE - WER IST WO
@@ -624,3 +686,69 @@ function online_location_wol_location($plugin_array) {
 
     return $plugin_array;
 } 
+
+#######################################
+### DATABASE | SETTINGS | TEMPLATES ###
+#######################################
+
+// DATENBANKTABELLE
+function online_location_database() {
+
+    global $db;
+
+    if (!$db->table_exists("online_locations")) {
+        $db->query("CREATE TABLE ".TABLE_PREFIX."online_locations(
+            `olid` int(10) unsigned NOT NULL AUTO_INCREMENT,
+            `identification` VARCHAR(500) COLLATE utf8_general_ci  NOT NULL,
+            `phpfile` VARCHAR(500) COLLATE utf8_general_ci NOT NULL,
+            `parameter` VARCHAR(500) COLLATE utf8_general_ci NOT NULL,
+            `value` VARCHAR(500) COLLATE utf8_general_ci NOT NULL,
+            `location_name` VARCHAR(500) COLLATE utf8_general_ci NOT NULL,
+            PRIMARY KEY(`olid`),
+            KEY `olid` (`olid`)
+            )
+            ENGINE=InnoDB ".$db->build_create_table_collation().";    
+        ");
+    }
+}
+
+// UPDATE CHECK
+function online_location_is_updated() {
+    
+    global $db;
+
+    $charset = 'utf8mb4';
+    $collation = 'utf8mb4_unicode_ci';
+
+    $collation_string = $db->build_create_table_collation();
+    if (preg_match('/CHARACTER SET ([^\s]+)\s+COLLATE ([^\s]+)/i', $collation_string, $matches)) {
+        $charset = strtolower($matches[1]);
+        $collation = strtolower($matches[2]);
+    }
+
+    $databaseTables = [
+        "online_locations"
+    ];
+
+    foreach ($databaseTables as $table_name) {
+        if (!$db->table_exists($table_name)) {
+            return false;
+        }
+
+        $full_table_name = TABLE_PREFIX . $table_name;
+
+        $query = $db->query("
+            SELECT TABLE_COLLATION 
+            FROM information_schema.TABLES 
+            WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = '".$db->escape_string($full_table_name)."'
+        ");
+        $result = $db->fetch_array($query);
+        $actual_collation = strtolower($result['TABLE_COLLATION'] ?? '');
+
+        if ($actual_collation !== $collation) {
+            return false;
+        }
+    }
+
+    return true;
+}
