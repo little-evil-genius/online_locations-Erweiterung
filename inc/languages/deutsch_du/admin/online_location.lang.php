@@ -1,4 +1,5 @@
 <?php
+$l['online_location_error_rpgstuff'] = "Das ACP Modul <a href=\"https://github.com/little-evil-genius/rpgstuff_modul\" target=\"_blank\">\"RPG Stuff\"</a> muss vorhanden sein!";
 $l['online_location_permission'] = "Kann die Online Locations verwalten?";
 $l['online_location_manage'] = "Online Locations";
 $l['online_location_manage_header'] = "Online Locations verwalten";
