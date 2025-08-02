@@ -1,8 +1,11 @@
 # online locations Erweiterung
 Eigene Seiten, wie zum Beispiel Listen oder auch teilweise Seiten von Plugins, erscheinen mit "Unbekannter Ort" in der Wer ist wo/online Liste. Mit diesem Plugin kann man diese Seiten manuell einpflegen - ohne in die PHP zu müssen. Die Seiten werden dafür einzeln im ACP hinzugefügt und können mit individuelle Texte bestückt werden. 
 
+# Vorrausetzung
+- Das ACP Modul <a href="https://github.com/little-evil-genius/rpgstuff_modul" target="_blank">RPG Stuff</a> <b>muss</b> vorhanden sein.
+
 # Benutzergruppen-Berechtigungen setzen
-Damit alle Admin-Accounts Zugriff auf die Verwaltung der Online Locations im ACP haben, müssen unter dem Reiter "Benutzer & Gruppen » Administrator-Berechtigungen » Benutzergruppen-Berechtigungen" die Berechtigungen einmal angepasst werden. Die Berechtigungen für die Online Locations befinden sich im Tab 'Tools & Verwaltung'.
+Damit alle Admin-Accounts Zugriff auf die Verwaltung der Online Locations im ACP haben, müssen unter dem Reiter "Benutzer & Gruppen » Administrator-Berechtigungen » Benutzergruppen-Berechtigungen" die Berechtigungen einmal angepasst werden. Die Berechtigungen für die Online Locations befinden sich im Tab 'RPG Erweiterungen'.
 
 # Online Location hinzufügen
 Ich erkläre das Prinzip der Felder anhand von Listen.<br>
@@ -39,7 +42,7 @@ Selbst Seiten, wo die Seitenbezeichnung unterschiedlich ist, können eingetragen
 
 # Links
 <b>ACP</b><br>
-index.php?module=tools-online_location
+index.php?module=rpgstuff-online_location
 
 # Demo
 # ACP
